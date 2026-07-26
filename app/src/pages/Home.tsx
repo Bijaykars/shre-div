@@ -8,7 +8,6 @@ import { SectionHead } from "@/components/store/StoreLayout";
 import { Marquee } from "@/components/store/Chrome";
 import { Reveal, Rise } from "@/components/store/Reveal";
 import { SlideLabel } from "@/components/store/Motion";
-import { DEPARTMENT_LABELS } from "@/lib/format";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import type { HomeData, SettingsMap } from "@/lib/types";
@@ -31,7 +30,6 @@ export default function Home() {
       />
       <Gateways settings={settings} />
       <FeaturedEdit data={data} loading={isLoading} />
-      <CategoryIndex data={data} loading={isLoading} />
       <Bestsellers data={data} loading={isLoading} />
       <Testimonials data={data} loading={isLoading} />
       <Newsletter settings={settings} />
@@ -251,13 +249,7 @@ function FeaturedEdit({ data, loading }: { data?: HomeData; loading: boolean }) 
   return (
     <section className="border-y border-ink/10 bg-cream">
       <div className="mx-auto max-w-[1440px] px-5 py-20 md:px-10 md:py-28">
-        <SectionHead
-          eyebrow="The Edit"
-          title="Pieces we're"
-          italic="in love with"
-          link="/shop"
-          linkLabel="Shop everything"
-        />
+        <SectionHead eyebrow="The Edit" title="Pieces we're" italic="in love with" />
         <div className="mt-12 grid grid-cols-2 gap-x-5 gap-y-12 lg:grid-cols-4">
           {loading
             ? Array.from({ length: 4 }).map((_, i) => (
@@ -269,41 +261,13 @@ function FeaturedEdit({ data, loading }: { data?: HomeData; loading: boolean }) 
               ))
             : data?.featured.map((p) => <ProductCard key={p.id} product={p} />)}
         </div>
-      </div>
-    </section>
-  );
-}
 
-/* ----------------------------- Category index ----------------------------- */
-
-function CategoryIndex({ data, loading }: { data?: HomeData; loading: boolean }) {
-  if (loading) return null;
-  const cats = data?.categories ?? [];
-  if (!cats.length) return null;
-
-  return (
-    <section className="mx-auto max-w-[1440px] px-5 py-20 md:px-10 md:py-28">
-      <SectionHead eyebrow="Index" title="Shop by" italic="collection" />
-      <div className="mt-10 border-t border-ink/15">
-        {cats.map((c, i) => (
-          <Link
-            key={c.id}
-            to={`/shop?category=${c.slug}`}
-            className="group grid grid-cols-[auto_1fr_auto] items-center gap-6 border-b border-ink/15 py-6 transition-colors hover:bg-rose-pale/60 md:grid-cols-[80px_1fr_1fr_auto] md:py-7"
-          >
-            <span className="font-display text-lg italic text-gold-deep">
-              {String(i + 1).padStart(2, "0")}
-            </span>
-            <h3 className="font-display text-2xl leading-tight text-ink transition-transform duration-300 group-hover:translate-x-2 md:text-4xl">
-              {c.name}
-            </h3>
-            <p className="hidden max-w-xs text-sm text-ink-faint md:block">{c.tagline}</p>
-            <span className="flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.25em] text-ink-faint transition-colors group-hover:text-rose">
-              {DEPARTMENT_LABELS[c.department] ?? ""}
-              <span className="text-base transition-transform duration-300 group-hover:translate-x-1">→</span>
-            </span>
+        <div className="mt-14 flex justify-center">
+          <Link to="/shop" className="btn-sharp !px-12 !py-5 !text-xs">
+            <SlideLabel>Shop Everything</SlideLabel>
+            <span aria-hidden>→</span>
           </Link>
-        ))}
+        </div>
       </div>
     </section>
   );
@@ -313,6 +277,31 @@ function CategoryIndex({ data, loading }: { data?: HomeData; loading: boolean })
 
 function Bestsellers({ data, loading }: { data?: HomeData; loading: boolean }) {
   const settings = data?.settings ?? {};
+  const rail = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  // Disable an arrow once that end is reached, and hide both when everything
+  // already fits — otherwise the controls look broken on a wide screen.
+  const syncArrows = useCallback(() => {
+    const el = rail.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 8);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 8);
+  }, []);
+
+  useEffect(() => {
+    syncArrows();
+    window.addEventListener("resize", syncArrows);
+    return () => window.removeEventListener("resize", syncArrows);
+  }, [syncArrows, data?.bestsellers.length]);
+
+  const scrollBy = (dir: 1 | -1) => {
+    const el = rail.current;
+    if (!el) return;
+    // One "page" of cards, capped so it never overshoots past the visible width.
+    el.scrollBy({ left: dir * Math.min(el.clientWidth * 0.8, 600), behavior: "smooth" });
+  };
   if (loading || !data?.bestsellers.length) return null;
 
   return (
@@ -331,13 +320,33 @@ function Bestsellers({ data, loading }: { data?: HomeData; loading: boolean }) {
               ]}
             />
           </div>
-          <p className="max-w-sm text-sm leading-relaxed text-cream/50">
-            {settings.bestsellersNote ||
-              "Pieces our customers return for — restocked in small batches and often gone within the week."}
-          </p>
+          <div className="flex flex-wrap items-end gap-6">
+            <p className="max-w-sm text-sm leading-relaxed text-cream/50">
+              {settings.bestsellersNote ||
+                "Pieces our customers return for — restocked in small batches and often gone within the week."}
+            </p>
+            <div className="ml-auto flex gap-2">
+              <button
+                onClick={() => scrollBy(-1)}
+                disabled={!canScrollLeft}
+                aria-label="Previous bestsellers"
+                className="border border-cream/25 p-3 text-cream transition-colors hover:border-gold hover:bg-gold hover:text-ink disabled:pointer-events-none disabled:opacity-25"
+              >
+                <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
+              </button>
+              <button
+                onClick={() => scrollBy(1)}
+                disabled={!canScrollRight}
+                aria-label="Next bestsellers"
+                className="border border-cream/25 p-3 text-cream transition-colors hover:border-gold hover:bg-gold hover:text-ink disabled:pointer-events-none disabled:opacity-25"
+              >
+                <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div className="no-scrollbar mt-12 flex gap-5 overflow-x-auto pb-2">
+        <div ref={rail} onScroll={syncArrows} className="no-scrollbar mt-12 flex gap-5 overflow-x-auto pb-2">
           {data.bestsellers.map((p, i) => (
             <Link
               key={p.id}
