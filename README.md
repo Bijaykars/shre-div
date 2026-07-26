@@ -61,11 +61,43 @@ npm run dev
 | `npx tsx scripts/set-admin.ts <user> <pass>` | Create an admin or reset a password |
 | `python scripts/optimize-images.py <path>` | Convert PNGs to web-weight JPEGs |
 
+## Deploying
+
+This is a long-running Node server with a MySQL database and disk-backed image
+uploads — not a static site and not serverless. It needs a host that runs a
+persistent process **and** gives you a mountable disk. Render and Railway both do.
+
+Two settings matter on any host:
+
+- **Root directory is `app/`**, not the repo root.
+- **`UPLOAD_DIR` must point at a mounted volume.** Without it, uploads land on
+  the container filesystem and every image the shop uploaded is wiped on the
+  next deploy.
+
+`render.yaml` at the repo root encodes all of this. In Render choose
+*New > Blueprint* and point it at this repo; it will prompt for `DATABASE_URL`
+and generate `SESSION_SECRET` itself.
+
+On Railway: set the service root directory to `app`, add a volume mounted at
+`/var/data/uploads`, and set `UPLOAD_DIR=/var/data/uploads`, `DATABASE_URL` and
+`SESSION_SECRET`.
+
+After the first deploy, run the schema push and create an admin against the
+production database:
+
+```bash
+npm run db:push
+npx tsx scripts/set-admin.ts <username> <password>
+```
+
+Vercel is a poor fit: its filesystem is ephemeral, so admin image uploads would
+disappear on every deploy. Going that route means converting the Hono server to
+a serverless function and replacing `saveImage` with S3 or Vercel Blob.
+
 ## Notes
 
-Admin image uploads write to `app/public/uploads`, which is gitignored. That
-survives redeploys on a VPS but **not** on ephemeral hosts like Vercel — swap
-`saveImage` in `api/lib/images.ts` for an S3 `PutObject` if the shop moves to one.
+Admin image uploads write to `UPLOAD_DIR` (default `app/public/uploads`), which
+is gitignored.
 
 Product age ranges are stored in months (`ageMinMonths` / `ageMaxMonths`) so
 clothing and toys share one scale; a null max means open-ended.

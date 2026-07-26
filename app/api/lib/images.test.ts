@@ -45,3 +45,27 @@ test("gives each upload a unique name", async () => {
   const b = await saveImage(new File(["x"], "same.png", { type: "image/png" }), dir);
   expect((a as { url: string }).url).not.toBe((b as { url: string }).url);
 });
+
+/* ------- the filename guard the /uploads route relies on ------- */
+
+const SAFE_NAME = /^[A-Za-z0-9_-]{1,64}\.(jpg|png|webp|avif|gif)$/;
+
+test("generated filenames satisfy the served-file guard", async () => {
+  const result = await saveImage(new File(["x"], "a.webp", { type: "image/webp" }), dir);
+  const name = path.basename((result as { url: string }).url);
+  expect(SAFE_NAME.test(name)).toBe(true);
+});
+
+test("the guard refuses traversal and unexpected extensions", () => {
+  for (const bad of [
+    "../../../etc/passwd",
+    "..%2f..%2fsecret.jpg",
+    "a/b.jpg",
+    "shell.sh",
+    "note.txt",
+    ".env",
+    "",
+  ]) {
+    expect(SAFE_NAME.test(bad)).toBe(false);
+  }
+});

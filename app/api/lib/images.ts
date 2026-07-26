@@ -2,10 +2,14 @@ import fs from "fs/promises";
 import path from "path";
 import { nanoid } from "nanoid";
 
-// ponytail: local disk under public/uploads. Uploads live outside the build, so
-// they survive redeploys on a VPS but NOT on ephemeral hosts (Vercel/Fly) —
-// swap the writeFile below for an S3 PutObject if the store moves to one.
-export const UPLOAD_DIR = path.resolve(process.cwd(), "public/uploads");
+// ponytail: local disk. Set UPLOAD_DIR to a mounted persistent volume on hosts
+// whose filesystem resets between deploys (Railway volume, Render disk) —
+// otherwise every image the shop uploads disappears on the next deploy. On a
+// fully ephemeral host with no volume option, swap the writeFile below for an
+// S3 PutObject instead.
+export const UPLOAD_DIR = process.env.UPLOAD_DIR
+  ? path.resolve(process.env.UPLOAD_DIR)
+  : path.resolve(process.cwd(), "public/uploads");
 const MAX_BYTES = 8 * 1024 * 1024;
 const EXT: Record<string, string> = {
   "image/jpeg": ".jpg",

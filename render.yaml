@@ -1,0 +1,29 @@
+# Render blueprint. In Render: New > Blueprint, point it at this repo.
+# Everything below is applied automatically except the values marked sync:false,
+# which Render will prompt for.
+services:
+  - type: web
+    name: shrediv
+    runtime: node
+    plan: starter # a persistent disk is not available on the free plan
+    rootDir: app
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+
+    # Uploaded product photos live here. Without a disk they are wiped on every
+    # deploy, which would silently erase everything the shop uploaded.
+    disk:
+      name: uploads
+      mountPath: /var/data/uploads
+      sizeGB: 1
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: UPLOAD_DIR
+        value: /var/data/uploads
+      - key: SESSION_SECRET
+        generateValue: true # Render generates a strong value once and keeps it
+      - key: DATABASE_URL
+        sync: false # paste your MySQL connection string
