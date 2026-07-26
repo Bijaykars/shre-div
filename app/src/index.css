@@ -1,0 +1,137 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Jost:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 35 42% 94%;
+    --foreground: 348 13% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 348 13% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 348 13% 14%;
+    --primary: 343 55% 44%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 344 46% 92%;
+    --secondary-foreground: 343 55% 30%;
+    --muted: 35 24% 89%;
+    --muted-foreground: 350 7% 42%;
+    --accent: 38 48% 57%;
+    --accent-foreground: 348 20% 14%;
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 34 20% 85%;
+    --input: 34 20% 82%;
+    --ring: 343 55% 44%;
+    --radius: 0rem;
+    --sidebar-background: 348 13% 14%;
+    --sidebar-foreground: 35 30% 88%;
+    --sidebar-primary: 38 48% 57%;
+    --sidebar-primary-foreground: 348 20% 14%;
+    --sidebar-accent: 348 10% 20%;
+    --sidebar-accent-foreground: 35 30% 92%;
+    --sidebar-border: 348 10% 24%;
+    --sidebar-ring: 38 48% 57%;
+    color-scheme: light only;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "kern", "liga";
+  }
+  ::selection {
+    background: #ae3360;
+    color: #fff;
+  }
+}
+
+@layer components {
+  /* Uppercase micro label — the editorial eyebrow */
+  .eyebrow {
+    @apply font-sans text-[11px] font-medium uppercase tracking-mega text-gold-deep;
+  }
+
+  /* Underline link that sweeps in from the left */
+  .link-sweep {
+    @apply relative inline-block;
+  }
+  .link-sweep::after {
+    content: "";
+    @apply absolute bottom-0 left-0 h-px w-full origin-right scale-x-0 bg-current transition-transform duration-300 ease-out;
+  }
+  .link-sweep:hover::after,
+  .link-sweep[data-active="true"]::after {
+    @apply origin-left scale-x-100;
+  }
+
+  /* Sharp editorial button */
+  .btn-sharp {
+    @apply inline-flex items-center justify-center gap-3 border border-ink bg-ink px-8 py-3.5 font-sans text-[11px] font-medium uppercase tracking-[0.25em] text-cream transition-colors duration-300 hover:bg-transparent hover:text-ink;
+  }
+  .btn-sharp-light {
+    @apply inline-flex items-center justify-center gap-3 border border-cream bg-cream px-8 py-3.5 font-sans text-[11px] font-medium uppercase tracking-[0.25em] text-ink transition-colors duration-300 hover:bg-transparent hover:text-cream;
+  }
+  .btn-sharp-ghost {
+    @apply inline-flex items-center justify-center gap-3 border border-ink/30 bg-transparent px-8 py-3.5 font-sans text-[11px] font-medium uppercase tracking-[0.25em] text-ink transition-colors duration-300 hover:border-ink hover:bg-ink hover:text-cream;
+  }
+
+  /* Label that slides up and re-enters on hover */
+  .slide-label {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+  }
+  .slide-label > span {
+    display: block;
+    transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .slide-label > span + span {
+    position: absolute;
+    inset: 0;
+    transform: translateY(110%);
+  }
+  a:hover .slide-label > span:first-child,
+  button:hover .slide-label > span:first-child {
+    transform: translateY(-110%);
+  }
+  a:hover .slide-label > span + span,
+  button:hover .slide-label > span + span {
+    transform: translateY(0);
+  }
+
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  /* Hide scrollbars for horizontal strips */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  /* Hairline frame used around imagery */
+  .frame-hairline {
+    box-shadow: inset 0 0 0 1px rgb(38 32 31 / 0.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide-label > span {
+    transition: none;
+  }
+}
