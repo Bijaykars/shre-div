@@ -296,28 +296,18 @@ function Bestsellers({ data, loading }: { data?: HomeData; loading: boolean }) {
     return () => window.removeEventListener("resize", syncArrows);
   }, [syncArrows, data?.bestsellers.length]);
 
-  // ponytail: hand-rolled tween. Native scrollBy({behavior:"smooth"}) silently
-  // no-ops on this rail because Lenis is driving scrolling — direct scrollLeft
-  // assignment is the only thing that moves it.
+  // Advance by one card. CSS scroll-behavior on the rail does the easing, so
+  // there is no animation loop to own here.
   const scrollBy = (dir: 1 | -1) => {
     const el = rail.current;
     if (!el) return;
     const card = (el.firstElementChild as HTMLElement | null)?.offsetWidth ?? 280;
-    const max = el.scrollWidth - el.clientWidth;
-    const from = el.scrollLeft;
-    const to = Math.max(0, Math.min(max, from + dir * (card + 20)));
-    if (to === from) return;
-
-    const start = performance.now();
-    const step = (now: number) => {
-      const t = Math.min(1, (now - start) / 450);
-      const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
-      el.scrollLeft = from + (to - from) * eased;
-      syncArrows();
-      if (t < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
+    el.scrollLeft = Math.max(
+      0,
+      Math.min(el.scrollWidth - el.clientWidth, el.scrollLeft + dir * (card + 20)),
+    );
   };
+
   if (loading || !data?.bestsellers.length) return null;
 
   return (
@@ -362,7 +352,7 @@ function Bestsellers({ data, loading }: { data?: HomeData; loading: boolean }) {
           </div>
         </div>
 
-        <div ref={rail} onScroll={syncArrows} className="no-scrollbar mt-12 flex gap-5 overflow-x-auto pb-2">
+        <div ref={rail} onScroll={syncArrows} className="no-scrollbar mt-12 flex scroll-smooth gap-5 overflow-x-auto pb-2">
           {data.bestsellers.map((p, i) => (
             <Link
               key={p.id}
