@@ -296,11 +296,27 @@ function Bestsellers({ data, loading }: { data?: HomeData; loading: boolean }) {
     return () => window.removeEventListener("resize", syncArrows);
   }, [syncArrows, data?.bestsellers.length]);
 
+  // ponytail: hand-rolled tween. Native scrollBy({behavior:"smooth"}) silently
+  // no-ops on this rail because Lenis is driving scrolling — direct scrollLeft
+  // assignment is the only thing that moves it.
   const scrollBy = (dir: 1 | -1) => {
     const el = rail.current;
     if (!el) return;
-    // One "page" of cards, capped so it never overshoots past the visible width.
-    el.scrollBy({ left: dir * Math.min(el.clientWidth * 0.8, 600), behavior: "smooth" });
+    const card = (el.firstElementChild as HTMLElement | null)?.offsetWidth ?? 280;
+    const max = el.scrollWidth - el.clientWidth;
+    const from = el.scrollLeft;
+    const to = Math.max(0, Math.min(max, from + dir * (card + 20)));
+    if (to === from) return;
+
+    const start = performance.now();
+    const step = (now: number) => {
+      const t = Math.min(1, (now - start) / 450);
+      const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
+      el.scrollLeft = from + (to - from) * eased;
+      syncArrows();
+      if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
   };
   if (loading || !data?.bestsellers.length) return null;
 
