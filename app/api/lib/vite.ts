@@ -9,7 +9,13 @@ type App = Hono<{ Bindings: HttpBindings }>;
 export function serveStaticFiles(app: App) {
   const distPath = path.resolve(import.meta.dirname, "../dist/public");
 
-  app.use("*", serveStatic({ root: "./dist/public" }));
+  // serveStatic resolves `root` against process.cwd(), but the bundle's location
+  // is what we actually know. Derive one from the other so the assets are found
+  // no matter which directory the host starts the process from — otherwise the
+  // page loads with no CSS or JS, which is harder to diagnose than a clean crash.
+  const relativeToCwd = path.relative(process.cwd(), distPath).split(path.sep).join("/");
+
+  app.use("*", serveStatic({ root: relativeToCwd || "." }));
 
   app.notFound((c) => {
     const accept = c.req.header("accept") ?? "";
