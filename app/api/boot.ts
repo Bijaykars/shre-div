@@ -32,16 +32,8 @@ const executedDirectly =
   !!process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 
 if (executedDirectly) {
-  const missing = ["DATABASE_URL", "SESSION_SECRET"].filter((k) => !process.env[k]);
-  if (missing.length) {
-    console.error(
-      `Cannot start: missing environment variable(s) ${missing.join(", ")}.\n` +
-        `Set them on the host and redeploy. SESSION_SECRET must be 32+ characters:\n` +
-        `  node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`,
-    );
-    process.exit(1);
-  }
-
+  // Required-env validation lives in lib/env.ts: it runs during the import graph,
+  // long before this line, so checking again here would be dead code.
   const { serve } = await import("@hono/node-server");
   const { serveStaticFiles } = await import("./lib/vite");
   serveStaticFiles(app);
