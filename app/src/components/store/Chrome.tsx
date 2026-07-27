@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { trpc } from "@/providers/trpc";
+import { SlideLabel } from "./Motion";
 
 export function Marquee({ items }: { items: string[] }) {
   if (!items.length) return null;
@@ -24,6 +25,64 @@ export function Marquee({ items }: { items: string[] }) {
   );
 }
 
+export function MapBanner() {
+  const { data: settings } = trpc.store.settings.useQuery();
+  const address = settings?.address;
+  if (!address) return null;
+
+  // mapQuery lets the shop nudge the pin without touching the address text.
+  // The `output=embed` form needs no API key, which keeps this free to run.
+  const query = encodeURIComponent(settings?.mapQuery || address);
+  const embed = `https://www.google.com/maps?q=${query}&z=16&output=embed`;
+  const directions = `https://www.google.com/maps/search/?api=1&query=${query}`;
+
+  return (
+    <section className="border-t border-ink/10 bg-cream">
+      <div className="mx-auto grid max-w-[1440px] gap-0 md:grid-cols-2">
+        <div className="flex flex-col justify-center px-5 py-14 md:px-10 md:py-20">
+          <p className="eyebrow">Come and see us</p>
+          <h2 className="mt-3 font-display text-4xl leading-[1.05] text-ink md:text-5xl">
+            Visit the <em className="italic text-rose">shop</em>
+          </h2>
+
+          <address className="mt-7 space-y-2 text-[15px] not-italic leading-relaxed text-ink-soft">
+            <p className="text-ink">{address}</p>
+            {settings?.hours && <p>{settings.hours}</p>}
+            {settings?.phone && (
+              <p>
+                <a href={`tel:${settings.phone.replace(/[^+\d]/g, "")}`} className="link-sweep">
+                  {settings.phone}
+                </a>
+              </p>
+            )}
+          </address>
+
+          <div className="mt-9 flex flex-wrap gap-4">
+            <a href={directions} target="_blank" rel="noreferrer noopener" className="btn-sharp">
+              <SlideLabel>Get Directions</SlideLabel>
+              <span aria-hidden>→</span>
+            </a>
+            <Link to="/contact" className="btn-sharp-ghost">
+              Contact Us
+            </Link>
+          </div>
+        </div>
+
+        <div className="min-h-[320px] md:min-h-[440px]">
+          <iframe
+            title={`Map showing ${address}`}
+            src={embed}
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            className="h-full w-full border-0 grayscale-[0.35] contrast-[1.05]"
+            allowFullScreen
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function Footer() {
   const { data: settings } = trpc.store.settings.useQuery();
   const { data: categories } = trpc.store.categories.useQuery();
@@ -44,9 +103,9 @@ export function Footer() {
               </div>
             </div>
             <p className="mt-6 max-w-sm text-sm leading-relaxed text-cream/60">
-              A family shop in Lalitpur — small-batch children's clothing, wooden
-              toys, and nursery gear chosen to last. Finished by hand, wrapped
-              like a gift.
+              A family shop in Kapan, Kathmandu — small-batch children's clothing,
+              wooden toys, and nursery gear chosen to last. Finished by hand,
+              wrapped like a gift.
             </p>
           </div>
 

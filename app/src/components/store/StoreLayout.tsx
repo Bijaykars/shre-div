@@ -1,6 +1,6 @@
 import { Link, Outlet } from "react-router";
 import { Header } from "./Header";
-import { Footer } from "./Chrome";
+import { Footer, MapBanner } from "./Chrome";
 import { CartDrawer } from "./CartDrawer";
 import { SlideLabel, SmoothScroll } from "./Motion";
 import { Reveal } from "./Reveal";
@@ -11,6 +11,7 @@ export function StoreLayout({ children }: { children?: React.ReactNode }) {
       <SmoothScroll />
       <Header />
       <main className="flex-1">{children ?? <Outlet />}</main>
+      <MapBanner />
       <Footer />
       <CartDrawer />
     </div>

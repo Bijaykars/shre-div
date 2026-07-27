@@ -452,7 +452,7 @@ async function seed() {
   await db.insert(testimonials).values([
     {
       name: "Munni Sunar",
-      location: "Lalitpur",
+      location: "Kapan, Kathmandu",
       quote:
         "I came in for a romper and left with the stacking rainbow too. Everything is the quality you hope for and rarely find here.",
       rating: 5,
@@ -492,12 +492,13 @@ async function seed() {
       "Clothing, toys & nursery|Small-batch and hand-finished|Cash on delivery|Gift wrapping on request|Nationwide shipping",
     phone: "+977 980-1087615",
     email: "hello@shrediv.com.np",
-    address: "Jhamsikhel, Lalitpur, Nepal",
+    address: "Jyotinagar Pul, Kapan, Kathmandu",
+    mapQuery: "Jyotinagar Pul, Kapan, Kathmandu, Nepal",
     hours: "Sunday – Friday · 10:00 – 19:00",
     instagram: "@shre.div",
     aboutTitle: "Everything for little ones, chosen with care",
     aboutBody:
-      "Shré~Div began at a single sewing table in Lalitpur, with one belief: what children wear and play with should be made with real care. We started with clothing — small batches of frocks, rompers and festive wear, each piece finished by hand.\n\nParents kept asking what else we would recommend, so we grew. Today we also stock wooden toys, cots, strollers and feeding gear — every item chosen the way we chose our own fabric: safe, well made, and built to be handed down rather than thrown away.",
+      "Shré~Div began at a single sewing table in Kapan, with one belief: what children wear and play with should be made with real care. We started with clothing — small batches of frocks, rompers and festive wear, each piece finished by hand.\n\nParents kept asking what else we would recommend, so we grew. Today we also stock wooden toys, cots, strollers and feeding gear — every item chosen the way we chose our own fabric: safe, well made, and built to be handed down rather than thrown away.",
     aboutImage: `${IMG}/about/atelier.jpg`,
     gateway1Title: "Clothing",
     gateway1Sub: "Rompers, party frocks & festive wear",

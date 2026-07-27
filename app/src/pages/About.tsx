@@ -8,7 +8,7 @@ export default function About() {
   const title = settings?.aboutTitle || "Everything for little ones, chosen with care";
   const body =
     settings?.aboutBody ||
-    "Shré~Div is a family shop in Lalitpur, Nepal — children's clothing made in small batches, alongside toys and nursery gear chosen to last.";
+    "Shré~Div is a family shop in Kapan, Kathmandu — children's clothing made in small batches, alongside toys and nursery gear chosen to last.";
   const paragraphs = body.split(/\n+/).filter(Boolean);
 
   return (

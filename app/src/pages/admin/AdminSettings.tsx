@@ -19,7 +19,8 @@ const GROUPS: { title: string; fields: Field[] }[] = [
     fields: [
       { key: "phone", label: "Phone" },
       { key: "email", label: "Email" },
-      { key: "address", label: "Shop address" },
+      { key: "address", label: "Shop address", hint: "Shown in the footer and on the map banner" },
+      { key: "mapQuery", label: "Map search term (optional)", hint: "Only if the address alone drops the pin in the wrong place — try a landmark or plus code" },
       { key: "hours", label: "Opening hours" },
       { key: "instagram", label: "Instagram handle" },
     ],
